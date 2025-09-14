@@ -137,21 +137,30 @@ if st.button("🚀 Train Model"):
     def getImagesWithID(path):
         imagePaths = [os.path.join(path, f) for f in os.listdir(path)]
         faces = []
-        Ids = []
+        ids = []
 
         for imagePath in imagePaths:
-            pilImage = Image.open(imagePath).convert('L')  # Convert to grayscale
+            pilImage = Image.open(imagePath).convert('L')
             imageNp = np.array(pilImage, 'uint8')
-            Id = int(os.path.split(imagePath)[-1].split(".")[1])
-            faces.append(imageNp)
-            Ids.append(Id)
-            st.image(imageNp[y:y+h, x:x+w], caption=f"ID {id}", channels="GRAY")
-            cv2.waitKey(10)
+            id = int(os.path.split(imagePath)[-1].split(".")[1])
 
-        return np.array(Ids), faces
+            facesDetected = facedetect.detectMultiScale(imageNp)
 
+            if len(facesDetected) == 0:
+                # no face found → just skip this image
+                continue
 
+            for (x, y, w, h) in facesDetected:
+                face_crop = imageNp[y:y+h, x:x+w]
+                faces.append(face_crop)
+                ids.append(id)
+
+                # ✅ Safe display in Streamlit
+                st.image(face_crop, caption=f"ID {id}", channels="GRAY")
+
+        return ids, faces
     ids, faces = getImagesWithID(path)
+
     recognizer.train(faces, ids)
     recognizer.save("recognizer/trainingData.yml")
     cv2.destroyAllWindows()
