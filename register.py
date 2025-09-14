@@ -145,7 +145,7 @@ if st.button("🚀 Train Model"):
             Id = int(os.path.split(imagePath)[-1].split(".")[1])
             faces.append(imageNp)
             Ids.append(Id)
-            cv2.imshow("Training", imageNp)
+            st.image(imageNp[y:y+h, x:x+w], caption=f"ID {id}", channels="GRAY")
             cv2.waitKey(10)
 
         return np.array(Ids), faces
@@ -212,7 +212,7 @@ if st.button("🚀 Detect"):
                 
                 welcomed.update(unique_names)  # mark as spoken
 
-        cv2.imshow("Face", img)
+        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Face Detection", channels="RGB")
 
         # Press 'q' to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
