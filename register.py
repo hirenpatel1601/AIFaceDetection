@@ -240,8 +240,8 @@ if student_id and student_name and students_age:
 
     count = st.session_state[f"user_{student_id}_count"]
 
-    if count < 20:
-        st.warning(f"Capture {20-count} more photos for {student_name}.")
+    if count < 5:
+        st.warning(f"Capture {5-count} more photos for {student_name}.")
         img_file_buffer = st.camera_input("📸 Capture Face")
 
         if img_file_buffer is not None:
@@ -264,6 +264,6 @@ if student_id and student_name and students_age:
                     st.success(f"✅ Saved {filename}")
 
     else:
-        st.success(f"🎉 Completed! 20 face samples saved for {student_name} (ID: {student_id})")
+        st.success(f"🎉 Completed! 5 face samples saved for {student_name} (ID: {student_id})")
 
 
