@@ -104,7 +104,7 @@ import os
 import numpy as np
 import sqlite3
 from PIL import Image
-import pyttsx3
+#import pyttsx3
 
 st.set_page_config(page_title="AI Attendance Enrollment", layout="wide")
 
@@ -157,7 +157,7 @@ if st.button("🚀 Train Model"):
     cv2.destroyAllWindows()
 
 if st.button("🚀 Detect"):
-    engine = pyttsx3.init()
+    #engine = pyttsx3.init()
     facedetect = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")   
     cam = cv2.VideoCapture(0)
     if not cam.isOpened():
@@ -210,8 +210,8 @@ if st.button("🚀 Detect"):
             unique_names = set(names_in_frame) - welcomed  # only new names
             if unique_names:
                 text = "Welcome " + ", ".join(unique_names)
-                engine.say(text)
-                engine.runAndWait()
+                #engine.say(text)
+                #engine.runAndWait()
                 welcomed.update(unique_names)  # mark as spoken
 
         cv2.imshow("Face", img)
@@ -222,7 +222,7 @@ if st.button("🚀 Detect"):
 
     cam.release()
     cv2.destroyAllWindows()
-    engine.stop()
+    #engine.stop()
 
 
 
