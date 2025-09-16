@@ -104,7 +104,7 @@ import os
 import numpy as np
 import sqlite3
 from PIL import Image
-
+import pyttsx3
 
 st.set_page_config(page_title="AI Attendance Enrollment", layout="wide")
 
@@ -137,36 +137,27 @@ if st.button("🚀 Train Model"):
     def getImagesWithID(path):
         imagePaths = [os.path.join(path, f) for f in os.listdir(path)]
         faces = []
-        ids = []
+        Ids = []
 
         for imagePath in imagePaths:
-            pilImage = Image.open(imagePath).convert('L')
+            pilImage = Image.open(imagePath).convert('L')  # Convert to grayscale
             imageNp = np.array(pilImage, 'uint8')
-            id = int(os.path.split(imagePath)[-1].split(".")[1])
+            Id = int(os.path.split(imagePath)[-1].split(".")[1])
+            faces.append(imageNp)
+            Ids.append(Id)
+            cv2.imshow("Training", imageNp)
+            cv2.waitKey(10)
 
-            facesDetected = facedetect.detectMultiScale(imageNp)
+        return np.array(Ids), faces
 
-            if len(facesDetected) == 0:
-                # no face found → just skip this image
-                continue
 
-            for (x, y, w, h) in facesDetected:
-                face_crop = imageNp[y:y+h, x:x+w]
-                faces.append(face_crop)
-                ids.append(id)
-
-                # ✅ Safe display in Streamlit
-                st.image(face_crop, caption=f"ID {id}", channels="GRAY")
-
-        return ids, faces
     ids, faces = getImagesWithID(path)
-
     recognizer.train(faces, ids)
     recognizer.save("recognizer/trainingData.yml")
     cv2.destroyAllWindows()
 
 if st.button("🚀 Detect"):
-    
+    engine = pyttsx3.init()
     facedetect = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")   
     cam = cv2.VideoCapture(0)
     if not cam.isOpened():
@@ -186,6 +177,7 @@ if st.button("🚀 Detect"):
         return profile
 
     welcomed = set()  # ✅ store names already spoken
+
     while True:
         ret, img = cam.read()
         if not ret:
@@ -218,10 +210,11 @@ if st.button("🚀 Detect"):
             unique_names = set(names_in_frame) - welcomed  # only new names
             if unique_names:
                 text = "Welcome " + ", ".join(unique_names)
-                
+                engine.say(text)
+                engine.runAndWait()
                 welcomed.update(unique_names)  # mark as spoken
 
-        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Face Detection", channels="RGB")
+        cv2.imshow("Face", img)
 
         # Press 'q' to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -229,13 +222,11 @@ if st.button("🚀 Detect"):
 
     cam.release()
     cv2.destroyAllWindows()
-    
+    engine.stop()
 
 
-    ids, faces = getImagesWithID(path)
-    recognizer.train(faces, ids)
-    recognizer.save("recognizer/trainingData.yml")
-    cv2.destroyAllWindows()
+
+
 # ----------------- ENROLLMENT FORM -----------------
 student_id = st.text_input("Student ID")
 student_name = st.text_input("Student Name")
